@@ -1,6 +1,3 @@
 [submodule "External/JUCE"]
 	path = External/JUCE
 	url = https://github.com/juce-framework/JUCE.git
-[submodule "External/cef"]
-	path = External/cef
-	url = https://github.com/chromiumembedded/cef.git
