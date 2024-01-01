@@ -87,7 +87,7 @@ void CEFRunner::run()
             // Enable experimental Chrome runtime. See issue #2969 for details.
             settings.chrome_runtime = true;
         }
-        settings.chrome_runtime = true;
+
     #if !defined(CEF_USE_SANDBOX)
         settings.no_sandbox = true;
     #endif

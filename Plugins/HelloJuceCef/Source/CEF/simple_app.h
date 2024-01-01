@@ -16,8 +16,9 @@ class CefSimpleApp
     ~CefSimpleApp() override;
 
     // CefApp methods:
-    CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override {
-    return this;
+    CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override 
+    {
+        return this;
     }
 
     // CefBrowserProcessHandler methods:
