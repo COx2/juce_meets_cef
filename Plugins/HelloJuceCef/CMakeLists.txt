@@ -13,6 +13,7 @@ option(JUCE_BUILD_EXAMPLES "Build JUCE Examples" OFF)
 message(STATUS "THIS_JUCE_DIRECTORY: ${THIS_JUCE_DIRECTORY}")
 add_subdirectory(${THIS_JUCE_DIRECTORY} JUCE EXCLUDE_FROM_ALL)
 
+set(USE_ATL OFF)
 set(USE_SANDBOX OFF)
 message(STATUS "THIS_CEF_DIRECTORY: ${THIS_CEF_DIRECTORY}")
 add_subdirectory(${THIS_CEF_DIRECTORY} CEF EXCLUDE_FROM_ALL)
@@ -53,6 +54,8 @@ target_sources(${BaseTargetName}
         Source/CEF/simple_app.h
         Source/CEF/simple_handler.cc
         Source/CEF/simple_handler.h
+        cefclient_juce.cpp
+        cefclient_juce.h
         ${CEFCLIENT_SRCS}
         )
 
@@ -86,6 +89,10 @@ target_link_libraries(${BaseTargetName}
         juce::juce_audio_devices
         libcef
         libcef_dll_wrapper
+        d3d11.lib
+        glu32.lib
+        imm32.lib
+        opengl32.lib
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

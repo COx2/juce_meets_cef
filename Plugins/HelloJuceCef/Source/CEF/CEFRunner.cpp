@@ -4,19 +4,26 @@
 #if JUCE_WINDOWS
 #include <Windows.h>
 #include <include/cef_sandbox_win.h>
+#include "../../cefclient_juce.h"
 #endif
 
 CEFRunner::CEFRunner(IHostComponentInformationProvider& hostComponent)
     : juce::Thread("CEF Runner Thread")
     , hostComponentRef_(hostComponent)
+    , nativeHandle_(nullptr)
 {
 }
 
 CEFRunner::~CEFRunner()
 {
-    CefQuitMessageLoop();
+    quitCEFMessageLoop();
 
     this->stopThread(1000);
+}
+
+void CEFRunner::setNativeHandle(void* handle)
+{
+    nativeHandle_ = handle;
 }
 
 void* CEFRunner::getNativeHandle() const
@@ -30,13 +37,25 @@ void* CEFRunner::getNativeHandle() const
 
 void CEFRunner::quitCEFMessageLoop()
 {
+#if 0
+    juceCefClient_->quit();
+#else
     CefQuitMessageLoop();
+#endif
 }
 
 void CEFRunner::run()
 {
-    int exit_code;
+    //juce::ChildProcess child_process;
+    //auto launch_result = child_process.start("");
 
+    //return;
+    juceCefClient_ = std::make_unique<JuceCefClient>();
+
+    int exit_code;
+#if 0
+    exit_code = juceCefClient_->run();
+#else
     std::unique_lock lock(mutex_);
     {
 
@@ -84,6 +103,8 @@ void CEFRunner::run()
         // Specify CEF global settings here.
         CefSettings settings;
 
+        settings.windowless_rendering_enabled = true;
+
         if (command_line->HasSwitch("enable-chrome-runtime")) {
             // Enable experimental Chrome runtime. See issue #2969 for details.
             settings.chrome_runtime = true;
@@ -96,7 +117,7 @@ void CEFRunner::run()
         // SimpleApp implements application-level callbacks for the browser process.
         // It will create the first browser instance in OnContextInitialized() after
         // CEF has initialized.
-        CefRefPtr<CefSimpleApp> app(new CefSimpleApp);
+        CefRefPtr<CefSimpleApp> app(new CefSimpleApp(this->nativeHandle_));
 
         // Initialize the CEF browser process. May return false if initialization
         // fails or if early exit is desired (for example, due to process singleton
@@ -115,4 +136,5 @@ void CEFRunner::run()
 
     // Shut down CEF.
     CefShutdown();
+#endif
 }

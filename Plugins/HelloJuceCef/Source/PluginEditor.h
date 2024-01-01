@@ -5,6 +5,31 @@
 #include "CEF/CEFRunner.h"
 
 //==============================================================================
+class CefHostingComponent
+    : public juce::Component
+    , public IHostComponentInformationProvider
+{
+public:
+    //==============================================================================
+    CefHostingComponent();
+    ~CefHostingComponent() override;
+
+private:
+    //==============================================================================
+    void paint(juce::Graphics&) override;
+    void resized() override;
+    void parentHierarchyChanged() override;
+
+    //==============================================================================
+    virtual juce::Rectangle<int> getHostComponentRectangle() const override;
+    virtual void onRendererCreated() override;
+
+    std::unique_ptr<CEFRunner> cefRunner_;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CefHostingComponent)
+};
+
+//==============================================================================
 class AudioPluginAudioProcessorEditor final
     : public juce::AudioProcessorEditor
     //, public IHostComponentInformationProvider

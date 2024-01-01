@@ -12,7 +12,7 @@ class CefSimpleApp
 {
  public:
     //==============================================================================
-     CefSimpleApp();
+     explicit CefSimpleApp(void* nativeHandle);
     ~CefSimpleApp() override;
 
     // CefApp methods:
@@ -26,6 +26,8 @@ class CefSimpleApp
     CefRefPtr<CefClient> GetDefaultClient() override;
 
 private:
+    void* nativeHandle_;
+
     // Include the default reference counting implementation.
     IMPLEMENT_REFCOUNTING(CefSimpleApp);
 };

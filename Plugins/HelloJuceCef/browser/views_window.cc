@@ -8,7 +8,6 @@
 
 #include "include/base/cef_build.h"
 #include "include/base/cef_callback.h"
-#include "include/base/cef_logging.h"
 #include "include/cef_app.h"
 #include "include/cef_i18n_util.h"
 #include "include/views/cef_box_layout.h"

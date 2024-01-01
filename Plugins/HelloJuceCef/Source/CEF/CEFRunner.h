@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "../../cefclient_juce.h"
 
 //==============================================================================
 class IHostComponentInformationProvider
@@ -26,6 +27,7 @@ public:
     ~CEFRunner() override;
 
     //==============================================================================
+    void setNativeHandle(void* handle);
     void* getNativeHandle() const;
     void quitCEFMessageLoop();
 
@@ -36,11 +38,12 @@ private:
     //==============================================================================
     mutable std::mutex mutex_;
 
-    std::atomic<sdl2::SDL_Window*> sdlWindow_;
-    std::atomic<sdl2::SDL_Renderer*> sdlRenderer_;
     std::atomic<bool> entereRunLoop_;
 
     IHostComponentInformationProvider& hostComponentRef_;
+    void* nativeHandle_;
+
+    std::unique_ptr<JuceCefClient> juceCefClient_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CEFRunner)
 };

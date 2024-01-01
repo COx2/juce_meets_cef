@@ -110,3 +110,46 @@ void AudioPluginAudioProcessorEditor::resized()
 //            safe_this->resized();
 //        });
 //}
+
+CefHostingComponent::CefHostingComponent()
+{
+    setSize(400, 400);
+}
+
+CefHostingComponent::~CefHostingComponent()
+{
+    if (cefRunner_.get() != nullptr)
+    {
+        cefRunner_->quitCEFMessageLoop();
+        cefRunner_.reset();
+    }
+}
+
+void CefHostingComponent::paint(juce::Graphics& g)
+{
+    // (Our component is opaque, so we must completely fill the background with a solid colour)
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+}
+
+void CefHostingComponent::resized()
+{
+}
+
+void CefHostingComponent::parentHierarchyChanged()
+{
+    if (getPeer() != nullptr && isOnDesktop() && isVisible() && cefRunner_.get() == nullptr)
+    {
+        cefRunner_ = std::make_unique<CEFRunner>(*this);
+        cefRunner_->setNativeHandle(this->getWindowHandle());
+        cefRunner_->startThread();
+    }
+}
+
+juce::Rectangle<int> CefHostingComponent::getHostComponentRectangle() const
+{
+    return { 0, 0, 400, 400 };
+}
+
+void CefHostingComponent::onRendererCreated()
+{
+}

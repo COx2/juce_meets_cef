@@ -12,14 +12,15 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        )
 {
-    cefRunner_ = std::make_unique<CEFRunner>(*this);
-    cefRunner_->startThread();
+    cefHostingComponent_ = std::make_unique<CefHostingComponent>();
+    cefHostingComponent_->addToDesktop(juce::ComponentPeer::windowIsResizable);
+    cefHostingComponent_->setVisible(true);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
-    cefRunner_->quitCEFMessageLoop();
-    cefRunner_.reset();
+    cefHostingComponent_->setVisible(false);
+    cefHostingComponent_.reset();
 }
 
 //==============================================================================
@@ -182,16 +183,6 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
-}
-
-//==============================================================================
-juce::Rectangle<int> AudioPluginAudioProcessor::getHostComponentRectangle() const
-{
-    return {0, 0, 400, 400};
-}
-
-void AudioPluginAudioProcessor::onRendererCreated()
-{
 }
 
 //==============================================================================

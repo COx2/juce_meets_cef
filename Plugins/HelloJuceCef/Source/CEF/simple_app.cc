@@ -85,7 +85,8 @@ class SimpleBrowserViewDelegate
 }  // namespace
 
 //==============================================================================
-CefSimpleApp::CefSimpleApp()
+CefSimpleApp::CefSimpleApp(void* nativeHandle)
+    : nativeHandle_(nativeHandle)
 {
 }
 
@@ -133,12 +134,16 @@ void CefSimpleApp::OnContextInitialized()
     {
         // Information used when creating the native window.
         CefWindowInfo window_info;
+        
+        //window_info.SetAsChild((HWND)nativeHandle_, { 0, 0, 400, 400 });
 
-#if defined(OS_WIN)
-        // On Windows we need to specify certain flags that will be passed to
-        // CreateWindowEx().
-        window_info.SetAsPopup(nullptr, "cefsimple");
-#endif
+        window_info.SetAsWindowless((HWND)nativeHandle_);
+//
+//#if defined(OS_WIN)
+//        // On Windows we need to specify certain flags that will be passed to
+//        // CreateWindowEx().
+//        window_info.SetAsPopup((HWND)nativeHandle_, "cefsimple");
+//#endif
 
         // Create the first browser window.
         CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings, nullptr, nullptr);

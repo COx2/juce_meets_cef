@@ -7,7 +7,6 @@
 //==============================================================================
 class AudioPluginAudioProcessor final
     : public juce::AudioProcessor
-    , public IHostComponentInformationProvider
 {
 public:
     //==============================================================================
@@ -48,11 +47,7 @@ public:
 
 private:
     //==============================================================================
-    virtual juce::Rectangle<int> getHostComponentRectangle() const override;
-    virtual void onRendererCreated() override;
-
-
-    std::unique_ptr<CEFRunner> cefRunner_;
+    std::unique_ptr<juce::Component> cefHostingComponent_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
