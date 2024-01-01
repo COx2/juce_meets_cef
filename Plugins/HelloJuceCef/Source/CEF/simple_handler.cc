@@ -55,10 +55,10 @@ void CefSimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 {
   CEF_REQUIRE_UI_THREAD();
 
-  if (use_views_) {
+  if (use_views_)
+  {
     // Set the title of the window using the Views framework.
-    CefRefPtr<CefBrowserView> browser_view =
-        CefBrowserView::GetForBrowser(browser);
+    CefRefPtr<CefBrowserView> browser_view = CefBrowserView::GetForBrowser(browser);
 
     if (browser_view)
     {
@@ -68,7 +68,8 @@ void CefSimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
             window->SetTitle(title);
         }
     }
-  } else if (!IsChromeRuntimeEnabled())
+  }
+  else if (!IsChromeRuntimeEnabled())
   {
     // Set the title of the window using platform APIs.
     //PlatformTitleChange(browser, title);
@@ -187,6 +188,11 @@ bool CefSimpleHandler::IsChromeRuntimeEnabled()
 }
 
 //==============================================================================
+bool CefSimpleHandler::GetAudioParameters(CefRefPtr<CefBrowser> browser, CefAudioParameters& params)
+{
+    return true;
+}
+
 void CefSimpleHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const CefAudioParameters& params, int channels)
 {
     juce::Logger::outputDebugString(" SimpleHandler::OnAudioStreamStarted");

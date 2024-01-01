@@ -118,19 +118,18 @@ void CefSimpleApp::OnContextInitialized()
     url = command_line->GetSwitchValue("url");
     if (url.empty())
     {
-        url = "http://www.google.com";
+        url = "https://tonejs.github.io/";
     }
 
     if (use_views)
     {
-    // Create the BrowserView.
-    CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
-        handler, url, browser_settings, nullptr, nullptr,
-        new SimpleBrowserViewDelegate());
+        // Create the BrowserView.
+        CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(handler, url, browser_settings, nullptr, nullptr, new SimpleBrowserViewDelegate());
 
-    // Create the Window. It will show itself after creation.
-    CefWindow::CreateTopLevelWindow(new SimpleWindowDelegate(browser_view));
-    } else
+        // Create the Window. It will show itself after creation.
+        CefWindow::CreateTopLevelWindow(new SimpleWindowDelegate(browser_view));
+    }
+    else
     {
         // Information used when creating the native window.
         CefWindowInfo window_info;
@@ -142,8 +141,7 @@ void CefSimpleApp::OnContextInitialized()
 #endif
 
         // Create the first browser window.
-        CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
-                                        nullptr, nullptr);
+        CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings, nullptr, nullptr);
     }
 }
 
