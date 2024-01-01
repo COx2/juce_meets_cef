@@ -13,11 +13,16 @@ option(JUCE_BUILD_EXAMPLES "Build JUCE Examples" OFF)
 message(STATUS "THIS_JUCE_DIRECTORY: ${THIS_JUCE_DIRECTORY}")
 add_subdirectory(${THIS_JUCE_DIRECTORY} JUCE EXCLUDE_FROM_ALL)
 
+set(USE_SANDBOX OFF)
 message(STATUS "THIS_CEF_DIRECTORY: ${THIS_CEF_DIRECTORY}")
 add_subdirectory(${THIS_CEF_DIRECTORY} CEF EXCLUDE_FROM_ALL)
 set(CEF_ROOT ${THIS_CEF_DIRECTORY})
 include(${THIS_CEF_DIRECTORY}/cmake/FindCEF.cmake)
 include(${THIS_CEF_DIRECTORY}/cmake/cef_variables.cmake)
+
+set(OS_WINDOWS TRUE)
+add_subdirectory(cefclient)
+message(STATUS "CEFCLIENT_SRCS: ${CEFCLIENT_SRCS}")
 
 juce_add_plugin("${BaseTargetName}"
     # VERSION ...                               # Set this if the plugin version is different to the project version
@@ -48,6 +53,7 @@ target_sources(${BaseTargetName}
         Source/CEF/simple_app.h
         Source/CEF/simple_handler.cc
         Source/CEF/simple_handler.h
+        ${CEFCLIENT_SRCS}
         )
 
 target_compile_definitions(${BaseTargetName}
@@ -55,7 +61,8 @@ target_compile_definitions(${BaseTargetName}
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
-        _ITERATOR_DEBUG_LEVEL=0)
+        ${CEF_COMPILER_DEFINES}
+        $<IF:$<CONFIG:Debug>,${CEF_COMPILER_DEFINES_DEBUG},${CEF_COMPILER_DEFINES_RELEASE}>)
 
 # Use PUBLIC to effect linked target like VST3, Standalone, CLAP, ...
 target_compile_features(${BaseTargetName}
@@ -116,9 +123,6 @@ if(OS_WINDOWS)
 #     ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
 #     target_link_libraries(${CEF_TARGET} cef_sandbox_lib ${CEF_SANDBOX_STANDARD_LIBS})
 #   endif()
-
-  # Add the custom manifest files to the executable.
-#   ADD_WINDOWS_MANIFEST("${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET}" "exe")
 
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")

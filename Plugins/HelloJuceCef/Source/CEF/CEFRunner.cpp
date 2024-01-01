@@ -3,6 +3,7 @@
 
 #if JUCE_WINDOWS
 #include <Windows.h>
+#include <include/cef_sandbox_win.h>
 #endif
 
 CEFRunner::CEFRunner(IHostComponentInformationProvider& hostComponent)

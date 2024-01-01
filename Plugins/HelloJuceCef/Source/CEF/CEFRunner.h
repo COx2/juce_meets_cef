@@ -3,13 +3,6 @@
 #include <JuceHeader.h>
 
 //==============================================================================
-namespace sdl2
-{
-    struct SDL_Window;
-    struct SDL_Renderer;
-}
-
-//==============================================================================
 class IHostComponentInformationProvider
 {
 public:
