@@ -56,4 +56,5 @@ set(THIS_CEF_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/External/cef_release)
 message(STATUS "THIS_CEF_DIRECTORY: ${THIS_CEF_DIRECTORY}")
 
 # Add projects
-add_subdirectory(Plugins)
+# add_subdirectory(Plugins)
+add_subdirectory(Apps)
