@@ -1,4 +1,5 @@
 #include "CefJuceAudioSink.h"
+#include "DSPModulePluginDemo.h"
 
 //==============================================================================
 CefJuceAudioSink::CefJuceAudioSink()
@@ -8,6 +9,9 @@ CefJuceAudioSink::CefJuceAudioSink()
     ringBufferAudioSource = std::make_unique<RingBufferAudioSource>();
 
     resamplingAudioSource = std::make_unique<juce::ResamplingAudioSource>(ringBufferAudioSource.get(), false, ringBufferAudioSource->getNumChannels());
+
+    dspModuleProcessr = std::make_unique<DspModulePluginDemoAudioProcessor>();
+    dspModuleProcessr->setPlayConfigDetails(2, 2, 48000, 512);
 
     setAudioChannels(0, 2);
 
@@ -26,6 +30,11 @@ CefJuceAudioSink::~CefJuceAudioSink()
 juce::Component* CefJuceAudioSink::getDeviceSelector() const
 {
     return deviceSelector.get();
+}
+
+juce::Component* CefJuceAudioSink::getDSPModuleEditor() const
+{
+    return dspModuleProcessr->createEditorIfNeeded();
 }
 
 //==============================================================================
@@ -61,6 +70,11 @@ void CefJuceAudioSink::prepareToPlay(int samplesPerBlockExpected, double sampleR
 {
     resamplingAudioSource->prepareToPlay(samplesPerBlockExpected, sampleRate);
 
+    if (samplesPerBlockExpected != 0 && sampleRate != 0)
+    {
+        dspModuleProcessr->prepareToPlay(sampleRate, samplesPerBlockExpected);
+    }
+
     deviceSampleRate = sampleRate;
 
     // TODO: update resampling setting.
@@ -74,6 +88,8 @@ void CefJuceAudioSink::prepareToPlay(int samplesPerBlockExpected, double sampleR
 void CefJuceAudioSink::releaseResources()
 {
     resamplingAudioSource->releaseResources();
+
+    dspModuleProcessr->releaseResources();
 }
 
 void CefJuceAudioSink::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -93,5 +109,8 @@ void CefJuceAudioSink::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
         ringBufferAudioSource->getNextAudioBlock(bufferToFill);
 #endif
     }
+
+    juce::MidiBuffer midi_buffer;
+    dspModuleProcessr->processBlock(*buffer, midi_buffer);
 }
 

@@ -143,6 +143,7 @@ public:
     virtual ~CefJuceAudioSink() override;
 
     juce::Component* getDeviceSelector() const;
+    juce::Component* getDSPModuleEditor() const;
 
 private:
     //==============================================================================
@@ -161,6 +162,8 @@ private:
     double browserSampleRate;
     std::unique_ptr<juce::ResamplingAudioSource> resamplingAudioSource;
     std::unique_ptr<RingBufferAudioSource> ringBufferAudioSource;
+
+    std::unique_ptr<juce::AudioProcessor> dspModuleProcessr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CefJuceAudioSink)
 };

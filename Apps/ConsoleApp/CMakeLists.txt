@@ -39,6 +39,7 @@ target_sources(${BaseTargetName}
         MainComponent.h
         CefJuceAudioSink.cpp
         CefJuceAudioSink.h
+        DSPModulePluginDemo.h
         ${CEFSIMPLE_SRCS}
         )
 
@@ -71,6 +72,7 @@ target_link_libraries(${BaseTargetName}
         juce::juce_core
         juce::juce_audio_utils
         juce::juce_gui_extra
+        juce::juce_dsp
         libcef
         libcef_dll_wrapper
         d3d11.lib

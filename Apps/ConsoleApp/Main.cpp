@@ -193,8 +193,12 @@ int main (int argc, char* argv[])
         audio_sink = std::make_shared<CefJuceAudioSink>();
         app->GetSimpleHandler()->addJuceAudioSink(audio_sink);
 
-        audio_sink->getDeviceSelector()->setBounds(0, 0, 400, 600);
+        audio_sink->getDeviceSelector()->setBounds(0, 0, 400, 800);
+
+        audio_sink->getDSPModuleEditor()->setBounds(400, 0, 800, 800);
+
         mainWindow->getContentComponent()->addAndMakeVisible(audio_sink->getDeviceSelector());
+        mainWindow->getContentComponent()->addAndMakeVisible(audio_sink->getDSPModuleEditor());
     });
 
     // Run the CEF message loop. This will block until CefQuitMessageLoop() is
