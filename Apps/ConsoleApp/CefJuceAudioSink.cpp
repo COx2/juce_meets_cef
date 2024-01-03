@@ -2,7 +2,13 @@
 
 //==============================================================================
 CefJuceAudioSink::CefJuceAudioSink()
+    : deviceSampleRate(48000)
+    , browserSampleRate(48000)
 {
+    ringBufferAudioSource = std::make_unique<RingBufferAudioSource>();
+
+    resamplingAudioSource = std::make_unique<juce::ResamplingAudioSource>(ringBufferAudioSource.get(), false, ringBufferAudioSource->getNumChannels());
+
     setAudioChannels(0, 2);
 
     deviceSelector = std::make_unique<juce::AudioDeviceSelectorComponent>
@@ -28,15 +34,22 @@ void CefJuceAudioSink::onAudioStreamStarted()
     juce::Logger::outputDebugString(juce::String("onAudioStreamStarted channel_layout: " + juce::String(audioParameters.channel_layout)));
     juce::Logger::outputDebugString(juce::String("onAudioStreamStarted sample_rate: " + juce::String(audioParameters.sample_rate)));
     juce::Logger::outputDebugString(juce::String("onAudioStreamStarted frames_per_buffer: " + juce::String(audioParameters.frames_per_buffer)));
+
+    browserSampleRate = audioParameters.sample_rate;
+
+    ringBufferAudioSource->prepareToPlay(audioParameters.frames_per_buffer, audioParameters.sample_rate);
+
+    // TODO: update resampling setting.
+#if 0
+    resamplingAudioSource->setResamplingRatio(deviceSampleRate / browserSampleRate);
+#else
+    resamplingAudioSource->setResamplingRatio(browserSampleRate / deviceSampleRate);
+#endif
 }
 
 void CefJuceAudioSink::onAudioStreamPacket(juce::AudioBuffer<float>& buffer)
 {
-    if (buffer.getNumChannels() == 2)
-    {
-        ringBufferChannelLeft.writeToFifo(buffer.getReadPointer(0), buffer.getNumSamples());
-        ringBufferChannelRight.writeToFifo(buffer.getReadPointer(1), buffer.getNumSamples());
-    }
+    ringBufferAudioSource->pushAudioBlock(buffer);
 }
 
 void CefJuceAudioSink::onAudioStreamStopped()
@@ -46,10 +59,21 @@ void CefJuceAudioSink::onAudioStreamStopped()
 //==============================================================================
 void CefJuceAudioSink::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
+    resamplingAudioSource->prepareToPlay(samplesPerBlockExpected, sampleRate);
+
+    deviceSampleRate = sampleRate;
+
+    // TODO: update resampling setting.
+#if 0
+    resamplingAudioSource->setResamplingRatio(deviceSampleRate / browserSampleRate);
+#else
+    resamplingAudioSource->setResamplingRatio(browserSampleRate / deviceSampleRate);
+#endif
 }
 
 void CefJuceAudioSink::releaseResources()
 {
+    resamplingAudioSource->releaseResources();
 }
 
 void CefJuceAudioSink::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -59,14 +83,15 @@ void CefJuceAudioSink::getNextAudioBlock(const juce::AudioSourceChannelInfo& buf
     const float level = 0.5f;
 
     auto* buffer = bufferToFill.buffer;
-    if (buffer->getNumChannels() == 2 && ringBufferChannelLeft.getNumReady() > 4096)
+    buffer->clear();
+
+    if (buffer->getNumChannels() == 2)
     {
-        ringBufferChannelLeft.readFromFifo(buffer->getWritePointer(0), buffer->getNumSamples());
-        ringBufferChannelRight.readFromFifo(buffer->getWritePointer(1), buffer->getNumSamples());
-    }
-    else
-    {
-        //juce::Logger::outputDebugString(juce::String("Buffer lacking: " + juce::String(ringBufferChannelLeft.getNumReady())));
+#if 0
+        resamplingAudioSource->getNextAudioBlock(bufferToFill);
+#else
+        ringBufferAudioSource->getNextAudioBlock(bufferToFill);
+#endif
     }
 }
 

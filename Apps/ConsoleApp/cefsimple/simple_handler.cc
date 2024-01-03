@@ -162,7 +162,23 @@ bool SimpleHandler::IsChromeRuntimeEnabled() {
 
 bool SimpleHandler::GetAudioParameters(CefRefPtr<CefBrowser> browser, CefAudioParameters& params)
 {
+    params.sample_rate = 48000;
+    //params.sample_rate = 16000;
+    params.channel_layout = CEF_CHANNEL_LAYOUT_STEREO;
+    //params.channel_layout = CEF_CHANNEL_LAYOUT_MONO;
+    params.frames_per_buffer = 1024;
     return true;
+
+    //if (params.sample_rate == 44100)
+    //{
+    //    return false;
+    //}
+    //else if (params.sample_rate == 48000)
+    //{
+    //    return true;
+    //}
+
+    //return false;
 }
 
 void SimpleHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const CefAudioParameters& params, int channels)
@@ -181,18 +197,31 @@ void SimpleHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const flo
     {
         auto params = juceAudioSink_.lock()->audioParameters;
 
-        if (params.channel_layout = CEF_CHANNEL_LAYOUT_STEREO)
+        juce::AudioBuffer<float> buffer_to_send;
+        const auto samples = frames;
+        buffer_to_send.setSize(2, samples);
+        buffer_to_send.clear();
+
+        if (params.channel_layout == CEF_CHANNEL_LAYOUT_MONO)
         {
-            juce::AudioBuffer<float> buffer_to_send;
-            auto samples = frames;
-            buffer_to_send.setSize(2, samples);
-            buffer_to_send.clear();
-
-            juce::FloatVectorOperations::copy(buffer_to_send.getWritePointer(0), data[0], samples);
-            juce::FloatVectorOperations::copy(buffer_to_send.getWritePointer(1), data[1], samples);
-
-            juceAudioSink_.lock()->onAudioStreamPacket(buffer_to_send);
+            for (int frame_idx = 0; frame_idx < frames; frame_idx++)
+            {
+                auto* f_l = data[0];
+                buffer_to_send.setSample(0, frame_idx, f_l[frame_idx]);
+            }
         }
+        else if (params.channel_layout == CEF_CHANNEL_LAYOUT_STEREO)
+        {
+            for (int frame_idx = 0; frame_idx < frames; frame_idx++)
+            {
+                auto* f_l = data[0];
+                auto* f_r = data[1];
+                buffer_to_send.setSample(0, frame_idx, f_l[frame_idx]);
+                buffer_to_send.setSample(1, frame_idx, f_r[frame_idx]);
+            }
+        }
+
+        juceAudioSink_.lock()->onAudioStreamPacket(buffer_to_send);
     }
 }
 
