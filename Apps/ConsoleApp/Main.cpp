@@ -77,6 +77,35 @@ int main (int argc, char* argv[])
     HINSTANCE hInstance = (HINSTANCE)juce::Process::getCurrentModuleInstanceHandle();
     CefMainArgs main_args(hInstance);
 
+#if 0
+    // Test creating a command line using set and append methods.
+    TEST(CommandLineTest, Manual) {
+        CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+        EXPECT_TRUE(command_line.get() != NULL);
+
+        command_line->SetProgram("test.exe");
+        command_line->AppendSwitch("switch1");
+        command_line->AppendSwitchWithValue("switch2", "val2");
+        command_line->AppendSwitchWithValue("switch3", "val3");
+        command_line->AppendSwitchWithValue("switch4", "val 4");
+        command_line->AppendArgument("arg1");
+        command_line->AppendArgument("arg 2");
+
+        VerifyCommandLine(command_line);
+    }
+#endif
+    // Parse command-line arguments for use in this method.
+    CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+    command_line->SetProgram(juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getFullPathName().toStdString());
+    //command_line->AppendSwitch("--enable-unsafe-webgpu");
+    //command_line->AppendSwitchWithValue("--use-webgpu-adapter", "d3d11");
+    command_line->AppendArgument("--enable-unsafe-webgpu");
+    command_line->AppendArgument("--use-webgpu-adapter=d3d11");
+    //command_line->AppendSwitchWithValue("switch3", "val3");
+    //command_line->AppendSwitchWithValue("switch4", "val 4");
+    //command_line->AppendArgument("arg1");
+    //command_line->AppendArgument("arg 2");
+
     // CEF applications have multiple sub-processes (render, GPU, etc) that share
     // the same executable. This function checks the command-line and, if this is
     // a sub-process, executes the appropriate logic.
@@ -86,12 +115,50 @@ int main (int argc, char* argv[])
         return exit_code;
     }
 
-    // Parse command-line arguments for use in this method.
-    CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-    command_line->InitFromString(::GetCommandLineW());
+    //CefString command_line_string = ::GetCommandLineW();
+    //CefString append_string = L" --enable-unsafe-webgpu --use-webgpu-adapter=d3d11";
+    //command_line_string = command_line_string.ToString16().insert(command_line_string.ToString16().length() - 2, append_string.ToString16());
+
+    //juce::Logger::outputDebugString(command_line_string.ToString());
+    //std::cout << command_line_string.ToString() << "\n" << std::endl;
+
+    //command_line->InitFromString(command_line_string);
+
+    //command_line->AppendArgument(L"--enable-unsafe-webgpu");
+    //command_line->AppendArgument(L"--use-webgpu-adapter=d3d11");
+
+    {
+        juce::Logger::outputDebugString(command_line->GetProgram().ToString());
+
+        CefCommandLine::ArgumentList cef_arg_list;
+        command_line->GetArguments(cef_arg_list);
+        for (const auto& arg : cef_arg_list)
+        {
+            juce::Logger::outputDebugString(arg.ToString());
+            std::cout << arg  << std::endl;
+        }
+    }
+    
+    //{
+    //    auto gcl = CefCommandLine::GetGlobalCommandLine();
+    //    CefCommandLine::ArgumentList cef_arg_list;
+    //    gcl->GetArguments(cef_arg_list);
+    //    for (const auto& arg : cef_arg_list)
+    //    {
+    //        juce::Logger::outputDebugString(arg.ToString());
+    //        std::cout << arg << "\n" << std::endl;
+    //    }
+    //}
 
     // Specify CEF global settings here.
     CefSettings settings;
+
+    juce::String juce_path =
+        juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile)
+        .getParentDirectory()
+        .getChildFile("Cache")
+        .getFullPathName();
+    cef_string_utf8_to_utf16(juce_path.toRawUTF8(), juce_path.length(), &settings.root_cache_path);
 
     if (command_line->HasSwitch("enable-chrome-runtime")) {
         // Enable experimental Chrome runtime. See issue #2969 for details.
